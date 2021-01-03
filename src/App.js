@@ -1,25 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+import * as React from "react"
+import { PokemonForm, fetchPokemon, PokemonInfoFallback, PokemonDataView } from "./pokemon"
+import "./App.css"
+function PokemonInfo({ pokemonName }) {
+  const [pokemon, setPokemon] = React.useState(null)
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  React.useEffect(() => {
+    if (!pokemonName) {
+      return
+    }
+    setPokemon(null)
+    fetchPokemon(pokemonName).then((pokemonData) => {
+      setPokemon(pokemonData)
+    })
+  }, [pokemonName])
+  if (!pokemonName) return "Submit a pokemon"
+  else if (!pokemon) return <PokemonInfoFallback name={pokemonName} />
+  return <PokemonDataView pokemon={pokemon} />
 }
 
-export default App;
+function App() {
+  const [pokemonName, setPokemonName] = React.useState("")
+
+  function handleSubmit(newPokemonName) {
+    setPokemonName(newPokemonName)
+  }
+
+  return (
+    <div className="pokemon-info-app">
+      <PokemonForm pokemonName={pokemonName} onSubmit={handleSubmit} />
+      <hr />
+      <div className="pokemon-info">
+        <PokemonInfo pokemonName={pokemonName} />
+      </div>
+    </div>
+  )
+}
+
+export default App
